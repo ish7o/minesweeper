@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Minesweeper</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="menu">
+      <h1 class="game-title">
+        <p>M</p>
+        <img src="./assets/flag.png" alt="" style="height: 1ch" />
+        <p>NESWEEPER</p>
+      </h1>
+      <div class="game-select-container">
+        <div>
+          <div>
+            <input id="beginner" type="radio" name="game-select" />
+            <label for="beginner">Beginner</label>
+          </div>
+          <div>
+            <input id="intermediate" type="radio" name="game-select" />
+            <label for="intermediate">Intermediate</label>
+          </div>
+          <div>
+            <input id="expert" type="radio" name="game-select" />
+            <label for="expert">Expert</label>
+          </div>
+
+          <!-- <div> -->
+          <!--   <input id="custom" type="radio" name="game-select" /> -->
+          <!--   <label for="custom">Custom</label> -->
+          <!-- </div> -->
+        </div>
+        <button id="game-start">Start</button>
+      </div>
+    </div>
+    <div id="game" class="hidden">
+      <div id="board"></div>
+      <div class="overlay"></div>
+      <div class="game-over">
+        <h1>You Lose</h1>
+        <button class="restart">Try Again</button>
+        <button class="menu-btn">Menu</button>
+      </div>
+      <div class="stats">
+        <div class="time">00</div>
+        <div class="mines">00</div>
+      </div>
+    </div>
+  </body>
+  <script>
+    const gameModes = {
+      beginner: {
+        width: 9,
+        height: 9,
+        mines: 0.15,
+      },
+      intermediate: {
+        width: 16,
+        height: 16,
+        mines: 0.2,
+      },
+      expert: {
+        width: 30,
+        height: 30,
+        mines: 0.25,
+      },
+    };
+
+    for (let [mode, { width, height, mines }] of Object.entries(gameModes)) {
+      const elem = document.querySelector(`[for=${mode}]`);
+      const eData = document.createElement("div");
+      eData.innerHTML = `<p> ${width}x${height} ${mines * 100}% mines</p>`;
+      elem.appendChild(eData);
+      const eInput = document.querySelector(`#${mode}`)
+      eInput.setAttribute("data-width", width)
+      eInput.setAttribute("data-height", height)
+      eInput.setAttribute("data-mines", mines)
+    }
+  </script>
+  <script src="./minesweeper.js"></script>
+</html>
