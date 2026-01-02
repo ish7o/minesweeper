@@ -1,13 +1,25 @@
 const eBoard = document.querySelector("#board");
 const eGameOver = document.querySelector(".game-over");
 const eOverlay = document.querySelector(".overlay");
-const eTimeStat = document.querySelector(".stats .time");
-const eMineStat = document.querySelector(".stats .mines");
+const eTimeStat = document.querySelector(".stats .time .time-writen");
+const eMineStat = document.querySelector(".stats .mines .mines-writen");
 const eRestartBtn = document.querySelector(".restart");
 const eMenuBtn = document.querySelector(".menu-btn");
 const eGameStart = document.querySelector("#game-start");
-const menuScreen = document.querySelector("#menu")
-const gameScreen = document.querySelector("#game")
+const menuScreen = document.querySelector("#menu");
+const gameScreen = document.querySelector("#game");
+const eGameSelectRadio = document.querySelectorAll('input[name="game-select"]');
+const eCustomiser = document.querySelector("#customiser");
+const ePauseMenu = document.querySelector(".Pause-menu");
+const eResumeBtn = document.querySelector("#resumeButton");
+const ePauseMenuBtn = document.querySelector("#menuButton");
+const ePauseBtn = document.querySelector("#restartButton");
+
+const click = new Audio('sounds/click.mp3');
+const wind = new Audio('sounds/wind.mp3');
+const gameOver = new Audio('sounds/you-lose.mp3');
+const sliderSound = new Audio('sounds/slider.mp3');
+const bigBoom = new Audio('sounds/nuke-bomb.mp3');
 
 let WIDTH = 16;
 let HEIGHT = 16;
@@ -19,6 +31,9 @@ let totalMines = 0;
 let flagsPlaced = 0;
 let startTS;
 let iTS;
+let iPRN = false
+let pauseClick = false
+let fail = false
 
 const createImgElem = (s) => `<img src='${s}' />`;
 const MINE_IMG = createImgElem("./assets/mine.png");
@@ -49,6 +64,7 @@ const updateMineStat = () => {
 };
 
 const startGame = (x, y) => {
+  fail = false
   isFirstClick = false;
   startTS = new Date();
   iTS = setInterval(updateTimeStat, 1000);
@@ -67,6 +83,8 @@ const startGame = (x, y) => {
 };
 
 const restartGame = () => {
+  fail = false
+  click.play();
   isFirstClick = true;
   board = [];
   totalMines = 0;
@@ -76,11 +94,35 @@ const restartGame = () => {
   eBoard.textContent = ""
   eGameOver.classList.remove("show");
   eOverlay.classList.remove("show");
-  // for (let i = 0; i < HEIGHT; i++)
-  //   for (let j = 0; j < WIDTH; j++) clearCell(i, j);
 };
 
+
+function pauseGame() {
+  if (pauseClick === true) {
+    pauseClick = false
+    ePauseMenu.style.visibility = 'hidden'
+    document.body.style.overflow = "auto";
+    return;
+  }
+  if (pauseClick === false) {
+    pauseClick = true
+    ePauseMenu.style.visibility = 'visible'
+    document.body.style.overflow = "hidden";
+    ePauseMenu.style.position = "fixed";
+    ePauseMenu.style.top = "50%";
+    ePauseMenu.style.left = "50%";
+    ePauseMenu.style.transform = "translate(-50%, -50%)";
+    return;
+  }
+}
+
 const loseGame = () => {
+  bigBoom.volume = 0.1;
+  bigBoom.play();
+  bigBoom.currentTime = 0;
+  gameOver.volume = 1;
+  gameOver.play();
+  fail = true
   for (let i = 0; i < HEIGHT; i++) {
     for (let j = 0; j < WIDTH; j++) {
       const isFlag = getCell(i, j).classList.contains("flag");
@@ -146,10 +188,12 @@ function flagCell(x, y) {
   if (elem.classList.contains("flag")) {
     elem.classList.remove("flag");
     elem.innerHTML = "";
+    wind.play();
     flagsPlaced--;
   } else {
     elem.classList.add("flag");
     elem.innerHTML = FLAG_IMG;
+    wind.play();
     flagsPlaced++;
   }
 }
@@ -193,9 +237,10 @@ const createDOM = () => {
       });
 
       e.addEventListener("click", (e) => {
+        if (pauseClick === true) return;
         const x = parseInt(e.target.getAttribute("x"));
         const y = parseInt(e.target.getAttribute("y"));
-        console.log(x, y)
+
         if (isFirstClick) startGame(x, y);
         if (getCell(x, y).classList.contains("flag")) return;
         revealCell(x, y);
@@ -297,6 +342,9 @@ function generateBoard() {
 }
 
 eGameStart.addEventListener("click", () => {
+  iPRN = true;
+  console.log(iPRN);
+  click.play();
   const selected = document.querySelector("[name='game-select']:checked")
   WIDTH = selected.getAttribute("data-width")
   HEIGHT = selected.getAttribute("data-height")
@@ -306,14 +354,51 @@ eGameStart.addEventListener("click", () => {
   revealedCells = newMatrix(WIDTH, HEIGHT, false);
 
   createDOM();
-  eRestartBtn.addEventListener("click", () => {restartGame(); createDOM()});
+  ePauseBtn.addEventListener("click", () => { restartGame(); createDOM(); pauseGame() });
+  eRestartBtn.addEventListener("click", () => { restartGame(); createDOM() });
 })
 
 eMenuBtn.addEventListener('click', () => {
+  iPRN = false
+  console.log(iPRN);
+  click.play();
   restartGame();
-
   gameScreen.classList.add("hidden")
   menuScreen.classList.remove("hidden")
   eGameOver.classList.remove("show");
   eOverlay.classList.remove("show");
 })
+ePauseMenuBtn.addEventListener('click', () => {
+  pauseGame();
+  iPRN = false
+  console.log(iPRN);
+  click.play();
+  restartGame();
+  gameScreen.classList.add("hidden")
+  menuScreen.classList.remove("hidden")
+  eGameOver.classList.remove("show");
+  eOverlay.classList.remove("show");
+});
+eGameSelectRadio.forEach(radio => {
+  radio.addEventListener('change', () => {
+    click.play();
+    if (radio.id === 'custom') {
+      eCustomiser.style.visibility = 'visible'
+    } else {
+      eCustomiser.style.visibility = 'hidden'
+    }
+  })
+
+})
+
+document.addEventListener("keydown", function (event) {
+  if (event.key === "Escape" && iPRN === true && fail === false) {
+    event.preventDefault();
+    pauseGame()
+  }
+});
+eResumeBtn.addEventListener('click', () => {
+  console.log("elo");
+  pauseGame()
+})
+
