@@ -31,7 +31,7 @@ let totalMines = 0;
 let flagsPlaced = 0;
 let startTS;
 let iTS;
-let iPRN = false
+let isPlaying = false
 let pauseClick = false
 let fail = false
 
@@ -342,8 +342,8 @@ function generateBoard() {
 }
 
 eGameStart.addEventListener("click", () => {
-  iPRN = true;
-  console.log(iPRN);
+  isPlaying = true;
+  console.log(isPlaying);
   click.play();
   const selected = document.querySelector("[name='game-select']:checked")
   WIDTH = selected.getAttribute("data-width")
@@ -359,8 +359,8 @@ eGameStart.addEventListener("click", () => {
 })
 
 eMenuBtn.addEventListener('click', () => {
-  iPRN = false
-  console.log(iPRN);
+  isPlaying = false
+  console.log(isPlaying);
   click.play();
   restartGame();
   gameScreen.classList.add("hidden")
@@ -370,8 +370,8 @@ eMenuBtn.addEventListener('click', () => {
 })
 ePauseMenuBtn.addEventListener('click', () => {
   pauseGame();
-  iPRN = false
-  console.log(iPRN);
+  isPlaying = false
+  console.log(isPlaying);
   click.play();
   restartGame();
   gameScreen.classList.add("hidden")
@@ -392,7 +392,7 @@ eGameSelectRadio.forEach(radio => {
 })
 
 document.addEventListener("keydown", function (event) {
-  if (event.key === "Escape" && iPRN === true && fail === false) {
+  if (event.key === "Escape" && isPlaying === true && fail === false) {
     event.preventDefault();
     pauseGame()
   }

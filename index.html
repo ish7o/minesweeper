@@ -38,8 +38,9 @@
         </div>
         <div id="custom_div">
           <input id="custom" type="radio" name="game-select" />
-          <p id="custom-text">Custom</p>
-          <label for="custom" id="parent-for-custom"></label>
+          <label for="custom" id="custom-container">
+            <p>Custom</p>
+          </label>
           <div id="customiser">
             <label for="slider-w-and-h ">Width and Height:</label>
             <input type="range" id="slider-w-and-h" min="5" max="50" value="5">
@@ -101,49 +102,45 @@
     },
   };
 
-  for (let [mode, { width, height, mines }] of Object.entries(gameModes)) {
-    const elem = document.querySelector(`[for=${mode}]`);
-    const eData = document.createElement("div");
-    eData.innerHTML = `<p> ${width}x${height} ${mines * 100}% mines</p>`;
-    elem.appendChild(eData);
+  function setAttrInfo({mode, width, height, mines}) {
     const eInput = document.querySelector(`#${mode}`)
     eInput.setAttribute("data-width", width)
     eInput.setAttribute("data-height", height)
     eInput.setAttribute("data-mines", mines)
   }
 
+  function setLevelInfo({mode, width, height, mines}) {
+    gameModes[mode].width = width
+    gameModes[mode].height = height
+    gameModes[mode].mines = mines
+  }
+
+  for (let [mode, { width, height, mines }] of Object.entries(gameModes)) {
+    const elem = document.querySelector(`[for=${mode}]`);
+    const eData = document.createElement("div");
+    eData.innerHTML = `<p id="${mode}-info"> ${width}x${height} ${mines * 100}% mines</p>`;
+    elem.appendChild(eData);
+    setAttrInfo({mode: mode, width: width, height: height, mines: mines})
+  }
+
   document.querySelector("#slider-mine").addEventListener("input", () => {
     sliderSound.play();
-    gameModes.custom.width = parseInt(document.querySelector("#slider-w-and-h").value);
-    gameModes.custom.height = parseInt(document.querySelector("#slider-w-and-h").value);
-    gameModes.custom.mines = parseFloat(document.querySelector("#slider-mine").value);
-    const parent = document.getElementById("parent-for-custom");
-    const eData = document.createElement("div");
-    eData.id = "custom-data";
-    eData.innerHTML = `<p>${gameModes.custom.width}x${gameModes.custom.height} ${gameModes.custom.mines * 100}% mines</p>`;
-    parent.appendChild(eData);
-    const eInput = document.querySelector(`#custom`)
-    eInput.setAttribute("data-width", gameModes.custom.width)
-    eInput.setAttribute("data-height", gameModes.custom.height)
-    eInput.setAttribute("data-mines", gameModes.custom.mines)
-    parent.removeChild(parent.firstChild);
+    const wh = parseInt(document.querySelector("#slider-w-and-h").value)
+    const mines = parseFloat(document.querySelector("#slider-mine").value)
+    setLevelInfo({mode: "custom", width: wh, height: wh, mines: mines})
+    const customInfo = document.getElementById("custom-info");
+    customInfo.innerHTML = `<p>${wh}x${wh} ${Math.round(mines * 100)}% mines</p>`;
+    setAttrInfo({mode: "custom", width: wh, height: wh, mines: mines})
   });
   document.querySelector("#slider-w-and-h").addEventListener("input", () => {
     sliderSound.play();
-    gameModes.custom.width = parseInt(document.querySelector("#slider-w-and-h").value);
-    gameModes.custom.height = parseInt(document.querySelector("#slider-w-and-h").value);
-    gameModes.custom.mines = parseFloat(document.querySelector("#slider-mine").value);
-    const parent = document.getElementById("parent-for-custom");
-    const eData = document.createElement("div");
-    eData.id = "custom-data";
-    eData.innerHTML = `<p>${gameModes.custom.width}x${gameModes.custom.height} ${gameModes.custom.mines * 100}% mines</p>`;
-    parent.appendChild(eData);
-    const eInput = document.querySelector(`#custom`)
-    eInput.setAttribute("data-width", gameModes.custom.width)
-    eInput.setAttribute("data-height", gameModes.custom.height)
-    eInput.setAttribute("data-mines", gameModes.custom.mines)
-    parent.removeChild(parent.firstChild);
-  }); 
+    const wh = parseInt(document.querySelector("#slider-w-and-h").value)
+    const mines = parseFloat(document.querySelector("#slider-mine").value)
+    setLevelInfo({mode: "custom", width: wh, height: wh, mines: mines})
+    const customInfo = document.getElementById("custom-info");
+    customInfo.innerHTML = `<p>${wh}x${wh} ${Math.round(mines * 100)}% mines</p>`;
+    setAttrInfo({mode:  "custom", width: wh, height: wh, mines: mines})
+  });
 </script>
 <script src="./minesweeper.js"></script>
 
